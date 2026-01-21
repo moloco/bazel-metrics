@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-bb-bg text-gray-100 font-sans;
+}
+
+.metric-card {
+  @apply bg-bb-card rounded-lg p-6 shadow-lg border border-bb-accent/30;
+}
+
+.gauge-circle {
+  transition: stroke-dashoffset 0.5s ease-out;
+}
+
+.table-row:hover {
+  @apply bg-bb-accent/20;
+}

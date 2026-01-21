@@ -1,0 +1,75 @@
+# Bazel Metrics Dashboard
+
+A React + TypeScript dashboard to visualize Bazel adoption metrics for Go monorepos, inspired by [BuildBuddy](https://buildbuddy.io).
+
+## Features
+
+- **Bazelization Percentage** - % of Go packages with BUILD files
+- **Test Coverage** - % of packages with test files
+- **Bazelized Tests** - % of test packages with `go_test` targets
+- **Speed Comparison** - Benchmark `go test` vs `bazel test` (cold/warm cache)
+- **Directory Breakdown** - Metrics grouped by top-level directories
+- **Package Explorer** - Searchable/filterable table of all packages
+
+## Quick Start
+
+### 1. Run the Analyzer
+
+```bash
+cd analyzer
+go build -o bazel-metrics ./cmd/main.go
+./bazel-metrics --repo=/path/to/your/repo --output=../dashboard/public/metrics.json
+```
+
+**Options:**
+- `--repo` - Path to repository to analyze (default: `.`)
+- `--output` - Output JSON file path (default: `metrics.json`)
+- `--benchmark` - Run speed comparison benchmarks
+- `--max-benchmarks` - Max packages to benchmark (default: 5)
+
+### 2. Start the Dashboard
+
+```bash
+cd dashboard
+npm install
+npm run dev
+```
+
+Open http://localhost:3000
+
+## Project Structure
+
+```
+bazel-metrics/
+├── analyzer/                 # Go CLI tool
+│   ├── cmd/main.go          # Entry point
+│   └── pkg/
+│       ├── scanner/         # Scans for BUILD files, Go packages
+│       ├── metrics/         # Calculates percentages
+│       └── benchmark/       # Speed comparison runner
+├── dashboard/               # React + TypeScript frontend
+│   └── src/
+│       ├── components/      # UI components
+│       ├── types/           # TypeScript definitions
+│       └── App.tsx          # Main dashboard
+└── README.md
+```
+
+## Sample Output
+
+```
+=== Summary ===
+Bazelization:    22.7% (690/3041 packages have BUILD files)
+Test Coverage:   62.8% (1910/3041 packages have tests)
+Bazelized Tests: 27.9% (packages with tests that have go_test targets)
+Total go_test targets: 644
+```
+
+## Tech Stack
+
+- **Analyzer**: Go
+- **Dashboard**: React, TypeScript, Vite, Tailwind CSS, Recharts
+
+## License
+
+MIT

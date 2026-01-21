@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+go.sum
+
+# Build outputs
+dist/
+analyzer/bazel-metrics
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+
+# Generated metrics (can be regenerated)
+metrics.json
+dashboard/public/metrics.json
