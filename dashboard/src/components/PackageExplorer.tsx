@@ -1,17 +1,31 @@
 import { useState, useMemo } from 'react';
-import type { PackageInfo } from '../types/metrics';
+import type { PackageInfo, PackageBenchmark } from '../types/metrics';
 
 interface PackageExplorerProps {
   packages: PackageInfo[];
+  benchmarks?: PackageBenchmark[];
 }
 
 type FilterOption = 'all' | 'bazelized' | 'not-bazelized' | 'with-tests' | 'without-tests';
 
-export function PackageExplorer({ packages }: PackageExplorerProps) {
+export function PackageExplorer({ packages, benchmarks = [] }: PackageExplorerProps) {
   const [filter, setFilter] = useState<FilterOption>('all');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(0);
   const pageSize = 20;
+
+  // Create a map of path -> benchmark data for quick lookup
+  const benchmarkMap = useMemo(() => {
+    const map = new Map<string, PackageBenchmark>();
+    benchmarks.forEach(b => map.set(b.path, b));
+    return map;
+  }, [benchmarks]);
+
+  const formatMs = (ms: number | undefined) => {
+    if (ms === undefined) return null;
+    if (ms < 1000) return `${ms}ms`;
+    return `${(ms / 1000).toFixed(1)}s`;
+  };
 
   const filteredPackages = useMemo(() => {
     const filtered = packages.filter(pkg => {
@@ -99,7 +113,9 @@ export function PackageExplorer({ packages }: PackageExplorerProps) {
               <th className="pb-2 pr-4 text-center">BUILD</th>
               <th className="pb-2 pr-4 text-center" title="Number of _test.go files">Test Files</th>
               <th className="pb-2 pr-4 text-center" title="Number of go_test targets in BUILD file">Bazel Tests</th>
-              <th className="pb-2 text-center" title="Non-test .go files">Source Go Files</th>
+              <th className="pb-2 pr-4 text-center" title="Non-test .go files">Source Go Files</th>
+              <th className="pb-2 pr-4 text-center" title="go test execution time">Go Test Time</th>
+              <th className="pb-2 text-center" title="bazel test execution time (warm cache)">Bazel Test Time</th>
             </tr>
           </thead>
           <tbody>
@@ -127,7 +143,21 @@ export function PackageExplorer({ packages }: PackageExplorerProps) {
                     <span className="text-gray-600">-</span>
                   )}
                 </td>
-                <td className="py-2 text-center text-gray-400">{pkg.goFileCount}</td>
+                <td className="py-2 pr-4 text-center text-gray-400">{pkg.goFileCount}</td>
+                <td className="py-2 pr-4 text-center">
+                  {benchmarkMap.get(pkg.path)?.goTestMs !== undefined ? (
+                    <span className="text-blue-400">{formatMs(benchmarkMap.get(pkg.path)?.goTestMs)}</span>
+                  ) : (
+                    <span className="text-gray-600">-</span>
+                  )}
+                </td>
+                <td className="py-2 text-center">
+                  {benchmarkMap.get(pkg.path)?.bazelTestWarmMs !== undefined ? (
+                    <span className="text-green-400">{formatMs(benchmarkMap.get(pkg.path)?.bazelTestWarmMs)}</span>
+                  ) : (
+                    <span className="text-gray-600">-</span>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>

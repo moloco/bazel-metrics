@@ -129,7 +129,7 @@ function App() {
 
       {/* Package Explorer */}
       <section>
-        <PackageExplorer packages={metrics.packages} />
+        <PackageExplorer packages={metrics.packages} benchmarks={metrics.speedComparison?.packages} />
       </section>
 
     </div>
