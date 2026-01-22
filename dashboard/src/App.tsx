@@ -132,10 +132,6 @@ function App() {
         <PackageExplorer packages={metrics.packages} />
       </section>
 
-      {/* Footer */}
-      <footer className="mt-8 text-center text-sm text-gray-500">
-        <p>Inspired by <a href="https://buildbuddy.io" className="text-blue-400 hover:underline">BuildBuddy</a></p>
-      </footer>
     </div>
   );
 }

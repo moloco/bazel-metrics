@@ -14,7 +14,7 @@ export function PackageExplorer({ packages }: PackageExplorerProps) {
   const pageSize = 20;
 
   const filteredPackages = useMemo(() => {
-    return packages.filter(pkg => {
+    const filtered = packages.filter(pkg => {
       // Search filter
       if (search && !pkg.path.toLowerCase().includes(search.toLowerCase())) {
         return false;
@@ -33,6 +33,28 @@ export function PackageExplorer({ packages }: PackageExplorerProps) {
         default:
           return true;
       }
+    });
+
+    // Sort priority:
+    // 1. BUILD + bazelized tests (fully bazelized)
+    // 2. BUILD + test files but not bazelized
+    // 3. BUILD only (no tests)
+    // 4. Alphabetically
+    return filtered.sort((a, b) => {
+      const getSortPriority = (pkg: typeof a) => {
+        if (pkg.hasBuildFile && pkg.goTestTargetCount > 0) return 0; // Fully bazelized
+        if (pkg.hasBuildFile && pkg.hasTestFiles) return 1; // BUILD + unbazelized tests
+        if (pkg.hasBuildFile) return 2; // BUILD only
+        return 3; // No BUILD
+      };
+
+      const aPriority = getSortPriority(a);
+      const bPriority = getSortPriority(b);
+
+      if (aPriority !== bPriority) return aPriority - bPriority;
+
+      // Within same priority, sort alphabetically
+      return a.path.localeCompare(b.path);
     });
   }, [packages, filter, search]);
 
@@ -75,9 +97,9 @@ export function PackageExplorer({ packages }: PackageExplorerProps) {
             <tr className="text-left text-gray-400 border-b border-bb-accent">
               <th className="pb-2 pr-4">Path</th>
               <th className="pb-2 pr-4 text-center">BUILD</th>
-              <th className="pb-2 pr-4 text-center">Tests</th>
-              <th className="pb-2 pr-4 text-center">go_test</th>
-              <th className="pb-2 text-center">Go Files</th>
+              <th className="pb-2 pr-4 text-center" title="Number of _test.go files">Test Files</th>
+              <th className="pb-2 pr-4 text-center" title="Number of go_test targets in BUILD file">Bazel Tests</th>
+              <th className="pb-2 text-center" title="Non-test .go files">Source Go Files</th>
             </tr>
           </thead>
           <tbody>
