@@ -81,8 +81,8 @@ export function PackageExplorer({ packages }: PackageExplorerProps) {
             </tr>
           </thead>
           <tbody>
-            {paginatedPackages.map((pkg, idx) => (
-              <tr key={idx} className="table-row border-b border-bb-accent/30">
+            {paginatedPackages.map((pkg) => (
+              <tr key={pkg.path} className="table-row border-b border-bb-accent/30">
                 <td className="py-2 pr-4 font-mono text-xs">{pkg.path}</td>
                 <td className="py-2 pr-4 text-center">
                   {pkg.hasBuildFile ? (

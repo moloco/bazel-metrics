@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 )
 
@@ -82,8 +83,8 @@ func (s *Scanner) Scan() (*ScanResult, error) {
 		}
 
 		dir := filepath.Dir(path)
-		relDir, _ := filepath.Rel(s.repoPath, dir)
-		if relDir == "" {
+		relDir, err := filepath.Rel(s.repoPath, dir)
+		if err != nil || relDir == "" {
 			relDir = "."
 		}
 
@@ -139,6 +140,11 @@ func (s *Scanner) Scan() (*ScanResult, error) {
 			result.Packages = append(result.Packages, pkg)
 		}
 	}
+
+	// Sort packages by path for deterministic output
+	sort.Slice(result.Packages, func(i, j int) bool {
+		return result.Packages[i].RelPath < result.Packages[j].RelPath
+	})
 
 	return result, nil
 }

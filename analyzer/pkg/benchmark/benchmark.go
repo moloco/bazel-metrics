@@ -1,6 +1,7 @@
 package benchmark
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
@@ -11,6 +12,8 @@ import (
 	"bazel-metrics/analyzer/pkg/metrics"
 	"bazel-metrics/analyzer/pkg/scanner"
 )
+
+const commandTimeout = 5 * time.Minute
 
 // Runner executes benchmarks comparing go test vs bazel test
 type Runner struct {
@@ -119,37 +122,57 @@ func (r *Runner) benchmarkPackage(pkg *scanner.Package) (*metrics.PackageBenchma
 }
 
 func (r *Runner) runGoTest(pkg *scanner.Package) (int64, error) {
-	pkgDir := pkg.Path
-
-	// Determine Go import path
-	importPath := "./" + pkg.RelPath
-	if strings.HasPrefix(pkg.RelPath, "go/") {
-		// If under go/ directory, adjust path
-		importPath = "./" + strings.TrimPrefix(pkg.RelPath, "go/")
-		pkgDir = filepath.Join(r.repoPath, "go")
+	// Find the go.mod to determine the correct working directory
+	goModDir := r.findGoModDir(pkg.Path)
+	if goModDir == "" {
+		goModDir = r.repoPath
 	}
 
-	cmd := exec.Command("go", "test", "-count=1", importPath)
-	cmd.Dir = pkgDir
+	// Calculate relative path from go.mod directory to package
+	relPath, err := filepath.Rel(goModDir, pkg.Path)
+	if err != nil {
+		relPath = pkg.RelPath
+	}
+	importPath := "./" + relPath
+
+	ctx, cancel := context.WithTimeout(context.Background(), commandTimeout)
+	defer cancel()
+
+	cmd := exec.CommandContext(ctx, "go", "test", "-count=1", importPath)
+	cmd.Dir = goModDir
 	cmd.Env = append(os.Environ(), "CGO_ENABLED=0")
 
 	start := time.Now()
-	err := cmd.Run()
+	err = cmd.Run()
 	elapsed := time.Since(start).Milliseconds()
 
-	if err != nil {
-		// Tests may fail but we still want timing
-		return elapsed, nil
-	}
-
+	// Tests may fail but we still want timing
 	return elapsed, nil
+}
+
+func (r *Runner) findGoModDir(pkgPath string) string {
+	dir := pkgPath
+	for {
+		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
+			return dir
+		}
+		parent := filepath.Dir(dir)
+		if parent == dir || !strings.HasPrefix(parent, r.repoPath) {
+			break
+		}
+		dir = parent
+	}
+	return ""
 }
 
 func (r *Runner) runBazelTest(pkg *scanner.Package) (int64, error) {
 	// Convert path to bazel target
 	target := "//" + pkg.RelPath + ":all"
 
-	cmd := exec.Command("bazel", "test", target, "--test_output=errors")
+	ctx, cancel := context.WithTimeout(context.Background(), commandTimeout)
+	defer cancel()
+
+	cmd := exec.CommandContext(ctx, "bazel", "test", target, "--test_output=errors")
 	cmd.Dir = r.repoPath
 
 	start := time.Now()
@@ -161,10 +184,11 @@ func (r *Runner) runBazelTest(pkg *scanner.Package) (int64, error) {
 }
 
 func (r *Runner) cleanBazelCache() {
-	cmd := exec.Command("bazel", "clean", "--expunge_async")
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+
+	// Use synchronous clean to ensure cache is fully cleared before benchmark
+	cmd := exec.CommandContext(ctx, "bazel", "clean")
 	cmd.Dir = r.repoPath
 	cmd.Run() // Ignore errors
-
-	// Give some time for async clean
-	time.Sleep(2 * time.Second)
 }
