@@ -1,6 +1,6 @@
 # Bazel Metrics Dashboard
 
-A React + TypeScript dashboard to visualize Bazel adoption metrics for Go monorepos, inspired by [BuildBuddy](https://buildbuddy.io).
+A React + TypeScript dashboard to visualize Bazel adoption metrics for Go monorepos.
 
 ## Features
 
@@ -37,6 +37,27 @@ npm run dev
 
 Open http://localhost:3000
 
+### 3. Deploy to Cloud Run (Optional)
+
+```bash
+cd dashboard
+
+# Build and push to Artifact Registry
+gcloud builds submit --tag us-central1-docker.pkg.dev/PROJECT_ID/cloud-run-source-deploy/bazel-metrics-dashboard:latest .
+
+# Deploy to Cloud Run
+gcloud run deploy bazel-metrics-dashboard \
+  --image us-central1-docker.pkg.dev/PROJECT_ID/cloud-run-source-deploy/bazel-metrics-dashboard:latest \
+  --region us-central1 \
+  --platform managed \
+  --allow-unauthenticated \
+  --port 8080
+```
+
+**Prerequisites:**
+- GCP project with Cloud Run, Cloud Build, and Artifact Registry APIs enabled
+- `gcloud` CLI authenticated
+
 ## Project Structure
 
 ```
@@ -48,10 +69,12 @@ bazel-metrics/
 │       ├── metrics/         # Calculates percentages
 │       └── benchmark/       # Speed comparison runner
 ├── dashboard/               # React + TypeScript frontend
-│   └── src/
-│       ├── components/      # UI components
-│       ├── types/           # TypeScript definitions
-│       └── App.tsx          # Main dashboard
+│   ├── src/
+│   │   ├── components/      # UI components
+│   │   ├── types/           # TypeScript definitions
+│   │   └── App.tsx          # Main dashboard
+│   ├── Dockerfile           # Cloud Run container build
+│   └── nginx.conf           # Nginx config for serving SPA
 └── README.md
 ```
 
