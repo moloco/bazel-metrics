@@ -115,7 +115,8 @@ export function PackageExplorer({ packages, benchmarks = [] }: PackageExplorerPr
               <th className="pb-2 pr-4 text-center" title="Number of go_test targets in BUILD file">Bazel Tests</th>
               <th className="pb-2 pr-4 text-center" title="Non-test .go files">Source Go Files</th>
               <th className="pb-2 pr-4 text-center" title="go test execution time">Go Test Time</th>
-              <th className="pb-2 text-center" title="bazel test execution time (warm cache)">Bazel Test Time</th>
+              <th className="pb-2 pr-4 text-center" title="bazel test execution time (cold cache)">Bazel Cold</th>
+              <th className="pb-2 text-center" title="bazel test execution time (warm cache)">Bazel Warm</th>
             </tr>
           </thead>
           <tbody>
@@ -147,6 +148,13 @@ export function PackageExplorer({ packages, benchmarks = [] }: PackageExplorerPr
                 <td className="py-2 pr-4 text-center">
                   {benchmarkMap.get(pkg.path)?.goTestMs !== undefined ? (
                     <span className="text-blue-400">{formatMs(benchmarkMap.get(pkg.path)?.goTestMs)}</span>
+                  ) : (
+                    <span className="text-gray-600">-</span>
+                  )}
+                </td>
+                <td className="py-2 pr-4 text-center">
+                  {benchmarkMap.get(pkg.path)?.bazelTestColdMs !== undefined ? (
+                    <span className="text-orange-400">{formatMs(benchmarkMap.get(pkg.path)?.bazelTestColdMs)}</span>
                   ) : (
                     <span className="text-gray-600">-</span>
                   )}
