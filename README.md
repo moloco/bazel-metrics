@@ -37,6 +37,12 @@ npm run dev
 
 Open http://localhost:3000
 
+Data source behavior:
+- `npm run dev` loads local files from `dashboard/public/` (for example `metrics.json`).
+- Production builds default to `https://storage.googleapis.com/bazel-metrics-data/`.
+- Override either mode with `VITE_DATA_BASE_URL`, for example:
+  `VITE_DATA_BASE_URL=/ npm run preview`
+
 ### 3. Deploy to Cloud Run (Optional)
 
 ```bash

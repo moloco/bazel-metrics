@@ -5,14 +5,29 @@ import { GaugeCircle } from './components/GaugeCircle';
 import { DirectoryBreakdown } from './components/DirectoryBreakdown';
 import { PackageExplorer } from './components/PackageExplorer';
 import { SpeedComparison } from './components/SpeedComparison';
+import { AIFixDashboard } from './components/AIFixDashboard';
+import { getDataUrl } from './config';
+
+type Page = 'metrics' | 'ai-fix';
 
 function App() {
+  const [page, setPage] = useState<Page>(() => {
+    return window.location.hash === '#/ai-fix' ? 'ai-fix' : 'metrics';
+  });
   const [metrics, setMetrics] = useState<MetricsReport | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('/metrics.json')
+    const handleHash = () => {
+      setPage(window.location.hash === '#/ai-fix' ? 'ai-fix' : 'metrics');
+    };
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, []);
+
+  useEffect(() => {
+    fetch(getDataUrl('metrics.json'))
       .then(res => {
         if (!res.ok) throw new Error('Failed to load metrics.json');
         return res.json();
@@ -27,9 +42,62 @@ function App() {
       });
   }, []);
 
+  const navigateTo = (target: Page) => {
+    window.location.hash = target === 'ai-fix' ? '#/ai-fix' : '#/';
+    setPage(target);
+  };
+
+  return (
+    <div className="min-h-screen">
+      {/* Navigation */}
+      <nav className="bg-bb-card border-b border-bb-accent/30 sticky top-0 z-10">
+        <div className="flex items-center gap-6 px-6 py-3">
+          <span className="text-lg font-bold text-white mr-2">Bazel Metrics</span>
+          <div className="flex gap-1">
+            <button
+              onClick={() => navigateTo('metrics')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                page === 'metrics'
+                  ? 'bg-bb-accent text-white'
+                  : 'text-gray-400 hover:text-white hover:bg-bb-accent/50'
+              }`}
+            >
+              Build Metrics
+            </button>
+            <button
+              onClick={() => navigateTo('ai-fix')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                page === 'ai-fix'
+                  ? 'bg-bb-accent text-white'
+                  : 'text-gray-400 hover:text-white hover:bg-bb-accent/50'
+              }`}
+            >
+              AI Fix Metrics
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      {/* Content */}
+      <main className="p-6">
+        {page === 'ai-fix' ? (
+          <AIFixDashboard />
+        ) : (
+          <BuildMetricsPage metrics={metrics} loading={loading} error={error} />
+        )}
+      </main>
+    </div>
+  );
+}
+
+function BuildMetricsPage({ metrics, loading, error }: {
+  metrics: MetricsReport | null;
+  loading: boolean;
+  error: string | null;
+}) {
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex items-center justify-center py-20">
         <div className="text-xl text-gray-400">Loading metrics...</div>
       </div>
     );
@@ -37,7 +105,7 @@ function App() {
 
   if (error || !metrics) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex items-center justify-center py-20">
         <div className="text-center">
           <h1 className="text-2xl text-red-400 mb-4">Error Loading Metrics</h1>
           <p className="text-gray-400">{error || 'No metrics data available'}</p>
@@ -53,10 +121,10 @@ function App() {
   const timestamp = new Date(metrics.timestamp).toLocaleString();
 
   return (
-    <div className="min-h-screen p-6">
+    <>
       {/* Header */}
       <header className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2">Bazel Metrics Dashboard</h1>
+        <h1 className="text-3xl font-bold text-white mb-2">Bazel Build Metrics</h1>
         <div className="flex flex-wrap gap-4 text-sm text-gray-400">
           <span>Repository: <code className="text-blue-400">{repoName}</code></span>
           <span>Last scan: {timestamp}</span>
@@ -131,8 +199,7 @@ function App() {
       <section>
         <PackageExplorer packages={metrics.packages} benchmarks={metrics.speedComparison?.packages} />
       </section>
-
-    </div>
+    </>
   );
 }
 

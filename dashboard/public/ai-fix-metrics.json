@@ -1,0 +1,111 @@
+{
+  "timestamp": "2026-02-26T06:30:00Z",
+  "summary": {
+    "totalInvocations": 78,
+    "successfulFixes": 60,
+    "failedFixes": 12,
+    "testsDisabled": 6,
+    "autoAppliedFixes": 22,
+    "userAppliedFixes": 19,
+    "postMerge": {
+      "totalInvocations": 47,
+      "successfulFixes": 38,
+      "failedFixes": 6,
+      "testsDisabled": 3
+    },
+    "preMerge": {
+      "totalInvocations": 31,
+      "successfulFixes": 22,
+      "failedFixes": 6,
+      "testsDisabled": 3
+    }
+  },
+  "dailyTrend": [
+    {"date": "2026-01-28", "invocations": 2, "successful": 2, "failed": 0, "disabled": 0, "applied": 2},
+    {"date": "2026-01-29", "invocations": 3, "successful": 2, "failed": 1, "disabled": 0, "applied": 2},
+    {"date": "2026-01-30", "invocations": 1, "successful": 1, "failed": 0, "disabled": 0, "applied": 1},
+    {"date": "2026-01-31", "invocations": 4, "successful": 3, "failed": 0, "disabled": 1, "applied": 3},
+    {"date": "2026-02-01", "invocations": 2, "successful": 2, "failed": 0, "disabled": 0, "applied": 2},
+    {"date": "2026-02-02", "invocations": 0, "successful": 0, "failed": 0, "disabled": 0, "applied": 0},
+    {"date": "2026-02-03", "invocations": 3, "successful": 2, "failed": 1, "disabled": 0, "applied": 2},
+    {"date": "2026-02-04", "invocations": 2, "successful": 2, "failed": 0, "disabled": 0, "applied": 1},
+    {"date": "2026-02-05", "invocations": 5, "successful": 4, "failed": 1, "disabled": 0, "applied": 3},
+    {"date": "2026-02-06", "invocations": 1, "successful": 1, "failed": 0, "disabled": 0, "applied": 1},
+    {"date": "2026-02-07", "invocations": 3, "successful": 2, "failed": 0, "disabled": 1, "applied": 2},
+    {"date": "2026-02-08", "invocations": 2, "successful": 2, "failed": 0, "disabled": 0, "applied": 2},
+    {"date": "2026-02-09", "invocations": 0, "successful": 0, "failed": 0, "disabled": 0, "applied": 0},
+    {"date": "2026-02-10", "invocations": 4, "successful": 3, "failed": 1, "disabled": 0, "applied": 3},
+    {"date": "2026-02-11", "invocations": 2, "successful": 1, "failed": 0, "disabled": 1, "applied": 1},
+    {"date": "2026-02-12", "invocations": 3, "successful": 3, "failed": 0, "disabled": 0, "applied": 2},
+    {"date": "2026-02-13", "invocations": 1, "successful": 1, "failed": 0, "disabled": 0, "applied": 1},
+    {"date": "2026-02-14", "invocations": 2, "successful": 1, "failed": 1, "disabled": 0, "applied": 1},
+    {"date": "2026-02-15", "invocations": 3, "successful": 2, "failed": 0, "disabled": 1, "applied": 2},
+    {"date": "2026-02-16", "invocations": 0, "successful": 0, "failed": 0, "disabled": 0, "applied": 0},
+    {"date": "2026-02-17", "invocations": 2, "successful": 2, "failed": 0, "disabled": 0, "applied": 1},
+    {"date": "2026-02-18", "invocations": 4, "successful": 3, "failed": 1, "disabled": 0, "applied": 3},
+    {"date": "2026-02-19", "invocations": 3, "successful": 2, "failed": 1, "disabled": 0, "applied": 1},
+    {"date": "2026-02-20", "invocations": 5, "successful": 4, "failed": 0, "disabled": 1, "applied": 3},
+    {"date": "2026-02-21", "invocations": 4, "successful": 3, "failed": 1, "disabled": 0, "applied": 2},
+    {"date": "2026-02-22", "invocations": 3, "successful": 2, "failed": 1, "disabled": 0, "applied": 2},
+    {"date": "2026-02-23", "invocations": 5, "successful": 3, "failed": 1, "disabled": 1, "applied": 3},
+    {"date": "2026-02-24", "invocations": 4, "successful": 3, "failed": 1, "disabled": 0, "applied": 2},
+    {"date": "2026-02-25", "invocations": 3, "successful": 3, "failed": 0, "disabled": 0, "applied": 2},
+    {"date": "2026-02-26", "invocations": 1, "successful": 1, "failed": 0, "disabled": 0, "applied": 1}
+  ],
+  "disabledTests": [
+    {
+      "target": "//go/pkg/legacy/deprecated_api:deprecated_api_test",
+      "disabledAt": "2026-02-23T19:00:00Z",
+      "workflow": "post-merge",
+      "reason": "Circular dependency in BUILD file that requires structural refactoring beyond BUILD file edits",
+      "runId": "pm-044"
+    },
+    {
+      "target": "//go/pkg/metrics/collector:collector_test",
+      "disabledAt": "2026-02-21T14:15:00Z",
+      "workflow": "post-merge",
+      "reason": "Proto dependency chain too complex for automated fix; requires manual proto_library restructuring",
+      "runId": "pm-040"
+    },
+    {
+      "target": "//go/pkg/data/pipeline:pipeline_test",
+      "disabledAt": "2026-02-18T16:00:00Z",
+      "workflow": "post-merge",
+      "reason": "Test relies on deprecated Bazel rule not compatible with current toolchain",
+      "runId": "pm-035"
+    },
+    {
+      "target": "//go/pkg/tracking/pixel:pixel_test",
+      "disabledAt": "2026-02-23T21:30:00Z",
+      "workflow": "pre-merge",
+      "reason": "CGo dependency requires system-level library not available in Bazel sandbox environment",
+      "runId": "pr-028"
+    },
+    {
+      "target": "//go/pkg/integration/external:external_test",
+      "disabledAt": "2026-02-21T16:30:00Z",
+      "workflow": "pre-merge",
+      "reason": "External service mock infrastructure requires test framework changes beyond BUILD file scope",
+      "runId": "pr-024"
+    },
+    {
+      "target": "//python3/moloco/learn/legacy:legacy_test",
+      "disabledAt": "2026-02-18T09:00:00Z",
+      "workflow": "pre-merge",
+      "reason": "Python 2 to Python 3 migration left incompatible BUILD targets that require manual py_library restructuring",
+      "runId": "pr-018"
+    }
+  ],
+  "recentRuns": [
+    {"id": "pm-047", "timestamp": "2026-02-25T08:15:00Z", "workflow": "post-merge", "status": "success", "targets": ["//go/pkg/bidder/model:all"], "prUrl": "https://github.com/moloco/marvel2/pull/67458", "prNumber": 67458, "attempts": 2, "applied": ""},
+    {"id": "pr-031", "timestamp": "2026-02-25T09:45:00Z", "workflow": "pre-merge", "status": "success", "targets": ["//go/pkg/api/v2:all"], "prUrl": "https://github.com/moloco/marvel2/pull/67460", "prNumber": 67460, "attempts": 1, "applied": "auto-label"},
+    {"id": "pm-046", "timestamp": "2026-02-24T22:45:00Z", "workflow": "post-merge", "status": "success", "targets": ["//go/pkg/auction/engine:all"], "prUrl": "https://github.com/moloco/marvel2/pull/67450", "prNumber": 67450, "attempts": 1, "applied": ""},
+    {"id": "pr-030", "timestamp": "2026-02-24T18:20:00Z", "workflow": "pre-merge", "status": "success", "targets": ["//go/pkg/reporting/dashboard:all"], "prUrl": "https://github.com/moloco/marvel2/pull/67455", "prNumber": 67455, "attempts": 2, "applied": "fix-branch"},
+    {"id": "pm-045", "timestamp": "2026-02-24T15:30:00Z", "workflow": "post-merge", "status": "failure", "targets": ["//rust/crates/serving-engine:all"], "attempts": 5, "applied": ""},
+    {"id": "pr-029", "timestamp": "2026-02-24T10:00:00Z", "workflow": "pre-merge", "status": "failure", "targets": ["//go/pkg/auth/oauth:all"], "attempts": 5, "applied": ""},
+    {"id": "pm-044", "timestamp": "2026-02-23T19:00:00Z", "workflow": "post-merge", "status": "disabled", "targets": ["//go/pkg/legacy/deprecated_api:all"], "prUrl": "https://github.com/moloco/marvel2/pull/67442", "prNumber": 67442, "attempts": 5, "applied": ""},
+    {"id": "pr-028", "timestamp": "2026-02-23T21:30:00Z", "workflow": "pre-merge", "status": "disabled", "targets": ["//go/pkg/tracking/pixel:all"], "prUrl": "https://github.com/moloco/marvel2/pull/67445", "prNumber": 67445, "attempts": 5, "applied": ""},
+    {"id": "pm-043", "timestamp": "2026-02-23T11:20:00Z", "workflow": "post-merge", "status": "success", "targets": ["//python3/moloco/learn/trainer:all"], "prUrl": "https://github.com/moloco/marvel2/pull/67435", "prNumber": 67435, "attempts": 3, "applied": ""},
+    {"id": "pr-027", "timestamp": "2026-02-23T08:00:00Z", "workflow": "pre-merge", "status": "success", "targets": ["//python3/moloco/serving/model:all"], "prUrl": "https://github.com/moloco/marvel2/pull/67438", "prNumber": 67438, "attempts": 1, "applied": "auto-label"}
+  ]
+}
