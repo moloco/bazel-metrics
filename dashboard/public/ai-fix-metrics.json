@@ -1,334 +1,111 @@
 {
-  "timestamp": "2026-02-25T10:30:00Z",
-  "postMerge": {
-    "totalInvocations": 47,
-    "successfulFixes": 38,
-    "failedFixes": 6,
-    "testsDisabled": 3,
-    "userAppliedFixes": 36,
-    "runs": [
-      {
-        "id": "pm-047",
-        "timestamp": "2026-02-25T08:15:00Z",
-        "workflow": "post-merge",
-        "status": "success",
-        "targets": ["//go/pkg/bidder/model:all"],
-        "prUrl": "https://github.com/moloco/marvel2/pull/67458",
-        "prNumber": 67458,
-        "attempts": 2
-      },
-      {
-        "id": "pm-046",
-        "timestamp": "2026-02-24T22:45:00Z",
-        "workflow": "post-merge",
-        "status": "success",
-        "targets": ["//go/pkg/auction/engine:all", "//go/pkg/auction/types:all"],
-        "prUrl": "https://github.com/moloco/marvel2/pull/67450",
-        "prNumber": 67450,
-        "attempts": 1
-      },
-      {
-        "id": "pm-045",
-        "timestamp": "2026-02-24T15:30:00Z",
-        "workflow": "post-merge",
-        "status": "failure",
-        "targets": ["//rust/crates/serving-engine:all"],
-        "attempts": 5,
-        "errorSummary": "Complex macro dependency requires manual intervention"
-      },
-      {
-        "id": "pm-044",
-        "timestamp": "2026-02-23T19:00:00Z",
-        "workflow": "post-merge",
-        "status": "disabled",
-        "targets": ["//go/pkg/legacy/deprecated_api:all"],
-        "prUrl": "https://github.com/moloco/marvel2/pull/67442",
-        "prNumber": 67442,
-        "attempts": 5,
-        "errorSummary": "Circular dependency in BUILD file"
-      },
-      {
-        "id": "pm-043",
-        "timestamp": "2026-02-23T11:20:00Z",
-        "workflow": "post-merge",
-        "status": "success",
-        "targets": ["//python3/moloco/learn/trainer:all"],
-        "prUrl": "https://github.com/moloco/marvel2/pull/67435",
-        "prNumber": 67435,
-        "attempts": 3
-      },
-      {
-        "id": "pm-042",
-        "timestamp": "2026-02-22T16:45:00Z",
-        "workflow": "post-merge",
-        "status": "success",
-        "targets": ["//go/pkg/dsp/campaign:all"],
-        "prUrl": "https://github.com/moloco/marvel2/pull/67428",
-        "prNumber": 67428,
-        "attempts": 1
-      },
-      {
-        "id": "pm-041",
-        "timestamp": "2026-02-22T09:30:00Z",
-        "workflow": "post-merge",
-        "status": "failure",
-        "targets": ["//go/pkg/creative/renderer:all"],
-        "attempts": 5,
-        "errorSummary": "Missing third-party dependency not available in WORKSPACE"
-      },
-      {
-        "id": "pm-040",
-        "timestamp": "2026-02-21T14:15:00Z",
-        "workflow": "post-merge",
-        "status": "disabled",
-        "targets": ["//go/pkg/metrics/collector:all"],
-        "prUrl": "https://github.com/moloco/marvel2/pull/67415",
-        "prNumber": 67415,
-        "attempts": 5,
-        "errorSummary": "Proto dependency chain too complex for automated fix"
-      },
-      {
-        "id": "pm-039",
-        "timestamp": "2026-02-20T18:00:00Z",
-        "workflow": "post-merge",
-        "status": "success",
-        "targets": ["//go/pkg/event/processor:all"],
-        "prUrl": "https://github.com/moloco/marvel2/pull/67408",
-        "prNumber": 67408,
-        "attempts": 1
-      },
-      {
-        "id": "pm-038",
-        "timestamp": "2026-02-20T10:30:00Z",
-        "workflow": "post-merge",
-        "status": "success",
-        "targets": ["//go/pkg/targeting/audience:all"],
-        "prUrl": "https://github.com/moloco/marvel2/pull/67400",
-        "prNumber": 67400,
-        "attempts": 2
-      },
-      {
-        "id": "pm-037",
-        "timestamp": "2026-02-19T14:45:00Z",
-        "workflow": "post-merge",
-        "status": "failure",
-        "targets": ["//rust/crates/feature-engine:all"],
-        "attempts": 5,
-        "errorSummary": "Rust proc-macro dependency requires cargo rule changes"
-      },
-      {
-        "id": "pm-036",
-        "timestamp": "2026-02-19T08:20:00Z",
-        "workflow": "post-merge",
-        "status": "success",
-        "targets": ["//go/pkg/config/loader:all"],
-        "prUrl": "https://github.com/moloco/marvel2/pull/67390",
-        "prNumber": 67390,
-        "attempts": 1
-      },
-      {
-        "id": "pm-035",
-        "timestamp": "2026-02-18T16:00:00Z",
-        "workflow": "post-merge",
-        "status": "disabled",
-        "targets": ["//go/pkg/data/pipeline:all"],
-        "prUrl": "https://github.com/moloco/marvel2/pull/67382",
-        "prNumber": 67382,
-        "attempts": 5,
-        "errorSummary": "Test relies on deprecated Bazel rule not compatible with current toolchain"
-      }
-    ]
-  },
-  "preMerge": {
-    "totalInvocations": 31,
-    "successfulFixes": 22,
-    "failedFixes": 6,
-    "testsDisabled": 3,
+  "timestamp": "2026-02-26T06:30:00Z",
+  "summary": {
+    "totalInvocations": 78,
+    "successfulFixes": 60,
+    "failedFixes": 12,
+    "testsDisabled": 6,
+    "autoAppliedFixes": 22,
     "userAppliedFixes": 19,
-    "runs": [
-      {
-        "id": "pr-031",
-        "timestamp": "2026-02-25T09:45:00Z",
-        "workflow": "pre-merge",
-        "status": "success",
-        "targets": ["//go/pkg/api/v2:all"],
-        "prUrl": "https://github.com/moloco/marvel2/pull/67460",
-        "prNumber": 67460,
-        "attempts": 1
-      },
-      {
-        "id": "pr-030",
-        "timestamp": "2026-02-24T18:20:00Z",
-        "workflow": "pre-merge",
-        "status": "success",
-        "targets": ["//go/pkg/reporting/dashboard:all"],
-        "prUrl": "https://github.com/moloco/marvel2/pull/67455",
-        "prNumber": 67455,
-        "attempts": 2
-      },
-      {
-        "id": "pr-029",
-        "timestamp": "2026-02-24T10:00:00Z",
-        "workflow": "pre-merge",
-        "status": "failure",
-        "targets": ["//go/pkg/auth/oauth:all"],
-        "attempts": 5,
-        "errorSummary": "Test depends on generated code not yet committed"
-      },
-      {
-        "id": "pr-028",
-        "timestamp": "2026-02-23T21:30:00Z",
-        "workflow": "pre-merge",
-        "status": "disabled",
-        "targets": ["//go/pkg/tracking/pixel:all"],
-        "prUrl": "https://github.com/moloco/marvel2/pull/67445",
-        "prNumber": 67445,
-        "attempts": 5,
-        "errorSummary": "CGo dependency requires system-level library not in Bazel sandbox"
-      },
-      {
-        "id": "pr-027",
-        "timestamp": "2026-02-23T08:00:00Z",
-        "workflow": "pre-merge",
-        "status": "success",
-        "targets": ["//python3/moloco/serving/model:all"],
-        "prUrl": "https://github.com/moloco/marvel2/pull/67438",
-        "prNumber": 67438,
-        "attempts": 1
-      },
-      {
-        "id": "pr-026",
-        "timestamp": "2026-02-22T13:15:00Z",
-        "workflow": "pre-merge",
-        "status": "success",
-        "targets": ["//go/pkg/budget/optimizer:all"],
-        "prUrl": "https://github.com/moloco/marvel2/pull/67430",
-        "prNumber": 67430,
-        "attempts": 3
-      },
-      {
-        "id": "pr-025",
-        "timestamp": "2026-02-22T07:45:00Z",
-        "workflow": "pre-merge",
-        "status": "failure",
-        "targets": ["//rust/crates/feature-store:all"],
-        "attempts": 5,
-        "errorSummary": "Rust toolchain version mismatch in BUILD configuration"
-      },
-      {
-        "id": "pr-024",
-        "timestamp": "2026-02-21T16:30:00Z",
-        "workflow": "pre-merge",
-        "status": "disabled",
-        "targets": ["//go/pkg/integration/external:all"],
-        "prUrl": "https://github.com/moloco/marvel2/pull/67420",
-        "prNumber": 67420,
-        "attempts": 5,
-        "errorSummary": "External service mock requires test infrastructure changes"
-      },
-      {
-        "id": "pr-023",
-        "timestamp": "2026-02-21T10:15:00Z",
-        "workflow": "pre-merge",
-        "status": "success",
-        "targets": ["//go/pkg/rta/optimizer:all"],
-        "prUrl": "https://github.com/moloco/marvel2/pull/67412",
-        "prNumber": 67412,
-        "attempts": 1
-      },
-      {
-        "id": "pr-022",
-        "timestamp": "2026-02-20T15:30:00Z",
-        "workflow": "pre-merge",
-        "status": "success",
-        "targets": ["//go/pkg/analytics/report:all"],
-        "prUrl": "https://github.com/moloco/marvel2/pull/67405",
-        "prNumber": 67405,
-        "attempts": 2
-      },
-      {
-        "id": "pr-021",
-        "timestamp": "2026-02-19T20:00:00Z",
-        "workflow": "pre-merge",
-        "status": "failure",
-        "targets": ["//go/pkg/ml/inference:all"],
-        "attempts": 5,
-        "errorSummary": "TensorFlow C library linkage issue in BUILD sandbox"
-      },
-      {
-        "id": "pr-020",
-        "timestamp": "2026-02-19T12:00:00Z",
-        "workflow": "pre-merge",
-        "status": "success",
-        "targets": ["//go/pkg/cache/redis:all"],
-        "prUrl": "https://github.com/moloco/marvel2/pull/67392",
-        "prNumber": 67392,
-        "attempts": 1
-      },
-      {
-        "id": "pr-019",
-        "timestamp": "2026-02-18T17:30:00Z",
-        "workflow": "pre-merge",
-        "status": "failure",
-        "targets": ["//go/pkg/grpc/gateway:all"],
-        "attempts": 5,
-        "errorSummary": "Proto import path conflict between v1 and v2 APIs"
-      },
-      {
-        "id": "pr-018",
-        "timestamp": "2026-02-18T09:00:00Z",
-        "workflow": "pre-merge",
-        "status": "disabled",
-        "targets": ["//python3/moloco/learn/legacy:all"],
-        "prUrl": "https://github.com/moloco/marvel2/pull/67378",
-        "prNumber": 67378,
-        "attempts": 5,
-        "errorSummary": "Python 2 to 3 migration left incompatible BUILD targets"
-      }
-    ]
+    "postMerge": {
+      "totalInvocations": 47,
+      "successfulFixes": 38,
+      "failedFixes": 6,
+      "testsDisabled": 3
+    },
+    "preMerge": {
+      "totalInvocations": 31,
+      "successfulFixes": 22,
+      "failedFixes": 6,
+      "testsDisabled": 3
+    }
   },
+  "dailyTrend": [
+    {"date": "2026-01-28", "invocations": 2, "successful": 2, "failed": 0, "disabled": 0, "applied": 2},
+    {"date": "2026-01-29", "invocations": 3, "successful": 2, "failed": 1, "disabled": 0, "applied": 2},
+    {"date": "2026-01-30", "invocations": 1, "successful": 1, "failed": 0, "disabled": 0, "applied": 1},
+    {"date": "2026-01-31", "invocations": 4, "successful": 3, "failed": 0, "disabled": 1, "applied": 3},
+    {"date": "2026-02-01", "invocations": 2, "successful": 2, "failed": 0, "disabled": 0, "applied": 2},
+    {"date": "2026-02-02", "invocations": 0, "successful": 0, "failed": 0, "disabled": 0, "applied": 0},
+    {"date": "2026-02-03", "invocations": 3, "successful": 2, "failed": 1, "disabled": 0, "applied": 2},
+    {"date": "2026-02-04", "invocations": 2, "successful": 2, "failed": 0, "disabled": 0, "applied": 1},
+    {"date": "2026-02-05", "invocations": 5, "successful": 4, "failed": 1, "disabled": 0, "applied": 3},
+    {"date": "2026-02-06", "invocations": 1, "successful": 1, "failed": 0, "disabled": 0, "applied": 1},
+    {"date": "2026-02-07", "invocations": 3, "successful": 2, "failed": 0, "disabled": 1, "applied": 2},
+    {"date": "2026-02-08", "invocations": 2, "successful": 2, "failed": 0, "disabled": 0, "applied": 2},
+    {"date": "2026-02-09", "invocations": 0, "successful": 0, "failed": 0, "disabled": 0, "applied": 0},
+    {"date": "2026-02-10", "invocations": 4, "successful": 3, "failed": 1, "disabled": 0, "applied": 3},
+    {"date": "2026-02-11", "invocations": 2, "successful": 1, "failed": 0, "disabled": 1, "applied": 1},
+    {"date": "2026-02-12", "invocations": 3, "successful": 3, "failed": 0, "disabled": 0, "applied": 2},
+    {"date": "2026-02-13", "invocations": 1, "successful": 1, "failed": 0, "disabled": 0, "applied": 1},
+    {"date": "2026-02-14", "invocations": 2, "successful": 1, "failed": 1, "disabled": 0, "applied": 1},
+    {"date": "2026-02-15", "invocations": 3, "successful": 2, "failed": 0, "disabled": 1, "applied": 2},
+    {"date": "2026-02-16", "invocations": 0, "successful": 0, "failed": 0, "disabled": 0, "applied": 0},
+    {"date": "2026-02-17", "invocations": 2, "successful": 2, "failed": 0, "disabled": 0, "applied": 1},
+    {"date": "2026-02-18", "invocations": 4, "successful": 3, "failed": 1, "disabled": 0, "applied": 3},
+    {"date": "2026-02-19", "invocations": 3, "successful": 2, "failed": 1, "disabled": 0, "applied": 1},
+    {"date": "2026-02-20", "invocations": 5, "successful": 4, "failed": 0, "disabled": 1, "applied": 3},
+    {"date": "2026-02-21", "invocations": 4, "successful": 3, "failed": 1, "disabled": 0, "applied": 2},
+    {"date": "2026-02-22", "invocations": 3, "successful": 2, "failed": 1, "disabled": 0, "applied": 2},
+    {"date": "2026-02-23", "invocations": 5, "successful": 3, "failed": 1, "disabled": 1, "applied": 3},
+    {"date": "2026-02-24", "invocations": 4, "successful": 3, "failed": 1, "disabled": 0, "applied": 2},
+    {"date": "2026-02-25", "invocations": 3, "successful": 3, "failed": 0, "disabled": 0, "applied": 2},
+    {"date": "2026-02-26", "invocations": 1, "successful": 1, "failed": 0, "disabled": 0, "applied": 1}
+  ],
   "disabledTests": [
     {
       "target": "//go/pkg/legacy/deprecated_api:deprecated_api_test",
       "disabledAt": "2026-02-23T19:00:00Z",
-      "disabledBy": "post-merge",
-      "runId": "pm-044",
-      "reason": "Circular dependency in BUILD file that requires structural refactoring beyond BUILD file edits"
+      "workflow": "post-merge",
+      "reason": "Circular dependency in BUILD file that requires structural refactoring beyond BUILD file edits",
+      "runId": "pm-044"
     },
     {
       "target": "//go/pkg/metrics/collector:collector_test",
       "disabledAt": "2026-02-21T14:15:00Z",
-      "disabledBy": "post-merge",
-      "runId": "pm-040",
-      "reason": "Proto dependency chain too complex for automated fix; requires manual proto_library restructuring"
+      "workflow": "post-merge",
+      "reason": "Proto dependency chain too complex for automated fix; requires manual proto_library restructuring",
+      "runId": "pm-040"
     },
     {
       "target": "//go/pkg/data/pipeline:pipeline_test",
       "disabledAt": "2026-02-18T16:00:00Z",
-      "disabledBy": "post-merge",
-      "runId": "pm-035",
-      "reason": "Test relies on deprecated Bazel rule not compatible with current toolchain"
+      "workflow": "post-merge",
+      "reason": "Test relies on deprecated Bazel rule not compatible with current toolchain",
+      "runId": "pm-035"
     },
     {
       "target": "//go/pkg/tracking/pixel:pixel_test",
       "disabledAt": "2026-02-23T21:30:00Z",
-      "disabledBy": "pre-merge",
-      "runId": "pr-028",
-      "reason": "CGo dependency requires system-level library not available in Bazel sandbox environment"
+      "workflow": "pre-merge",
+      "reason": "CGo dependency requires system-level library not available in Bazel sandbox environment",
+      "runId": "pr-028"
     },
     {
       "target": "//go/pkg/integration/external:external_test",
       "disabledAt": "2026-02-21T16:30:00Z",
-      "disabledBy": "pre-merge",
-      "runId": "pr-024",
-      "reason": "External service mock infrastructure requires test framework changes beyond BUILD file scope"
+      "workflow": "pre-merge",
+      "reason": "External service mock infrastructure requires test framework changes beyond BUILD file scope",
+      "runId": "pr-024"
     },
     {
       "target": "//python3/moloco/learn/legacy:legacy_test",
       "disabledAt": "2026-02-18T09:00:00Z",
-      "disabledBy": "pre-merge",
-      "runId": "pr-018",
-      "reason": "Python 2 to Python 3 migration left incompatible BUILD targets that require manual py_library restructuring"
+      "workflow": "pre-merge",
+      "reason": "Python 2 to Python 3 migration left incompatible BUILD targets that require manual py_library restructuring",
+      "runId": "pr-018"
     }
+  ],
+  "recentRuns": [
+    {"id": "pm-047", "timestamp": "2026-02-25T08:15:00Z", "workflow": "post-merge", "status": "success", "targets": ["//go/pkg/bidder/model:all"], "prUrl": "https://github.com/moloco/marvel2/pull/67458", "prNumber": 67458, "attempts": 2, "applied": ""},
+    {"id": "pr-031", "timestamp": "2026-02-25T09:45:00Z", "workflow": "pre-merge", "status": "success", "targets": ["//go/pkg/api/v2:all"], "prUrl": "https://github.com/moloco/marvel2/pull/67460", "prNumber": 67460, "attempts": 1, "applied": "auto-label"},
+    {"id": "pm-046", "timestamp": "2026-02-24T22:45:00Z", "workflow": "post-merge", "status": "success", "targets": ["//go/pkg/auction/engine:all"], "prUrl": "https://github.com/moloco/marvel2/pull/67450", "prNumber": 67450, "attempts": 1, "applied": ""},
+    {"id": "pr-030", "timestamp": "2026-02-24T18:20:00Z", "workflow": "pre-merge", "status": "success", "targets": ["//go/pkg/reporting/dashboard:all"], "prUrl": "https://github.com/moloco/marvel2/pull/67455", "prNumber": 67455, "attempts": 2, "applied": "fix-branch"},
+    {"id": "pm-045", "timestamp": "2026-02-24T15:30:00Z", "workflow": "post-merge", "status": "failure", "targets": ["//rust/crates/serving-engine:all"], "attempts": 5, "applied": ""},
+    {"id": "pr-029", "timestamp": "2026-02-24T10:00:00Z", "workflow": "pre-merge", "status": "failure", "targets": ["//go/pkg/auth/oauth:all"], "attempts": 5, "applied": ""},
+    {"id": "pm-044", "timestamp": "2026-02-23T19:00:00Z", "workflow": "post-merge", "status": "disabled", "targets": ["//go/pkg/legacy/deprecated_api:all"], "prUrl": "https://github.com/moloco/marvel2/pull/67442", "prNumber": 67442, "attempts": 5, "applied": ""},
+    {"id": "pr-028", "timestamp": "2026-02-23T21:30:00Z", "workflow": "pre-merge", "status": "disabled", "targets": ["//go/pkg/tracking/pixel:all"], "prUrl": "https://github.com/moloco/marvel2/pull/67445", "prNumber": 67445, "attempts": 5, "applied": ""},
+    {"id": "pm-043", "timestamp": "2026-02-23T11:20:00Z", "workflow": "post-merge", "status": "success", "targets": ["//python3/moloco/learn/trainer:all"], "prUrl": "https://github.com/moloco/marvel2/pull/67435", "prNumber": 67435, "attempts": 3, "applied": ""},
+    {"id": "pr-027", "timestamp": "2026-02-23T08:00:00Z", "workflow": "pre-merge", "status": "success", "targets": ["//python3/moloco/serving/model:all"], "prUrl": "https://github.com/moloco/marvel2/pull/67438", "prNumber": 67438, "attempts": 1, "applied": "auto-label"}
   ]
 }

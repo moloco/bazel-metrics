@@ -1,17 +1,36 @@
 export interface AIFixMetrics {
   timestamp: string;
-  postMerge: WorkflowMetrics;
-  preMerge: WorkflowMetrics;
+  summary: AIFixSummary;
+  dailyTrend: DailyTrendEntry[];
   disabledTests: DisabledTest[];
+  recentRuns: AIFixRun[];
 }
 
-export interface WorkflowMetrics {
+export interface AIFixSummary {
   totalInvocations: number;
   successfulFixes: number;
   failedFixes: number;
   testsDisabled: number;
+  autoAppliedFixes: number;
   userAppliedFixes: number;
-  runs: AIFixRun[];
+  postMerge: WorkflowSummary;
+  preMerge: WorkflowSummary;
+}
+
+export interface WorkflowSummary {
+  totalInvocations: number;
+  successfulFixes: number;
+  failedFixes: number;
+  testsDisabled: number;
+}
+
+export interface DailyTrendEntry {
+  date: string;
+  invocations: number;
+  successful: number;
+  failed: number;
+  disabled: number;
+  applied: number;
 }
 
 export interface AIFixRun {
@@ -23,13 +42,13 @@ export interface AIFixRun {
   prUrl?: string;
   prNumber?: number;
   attempts: number;
-  errorSummary?: string;
+  applied?: string;
 }
 
 export interface DisabledTest {
   target: string;
   disabledAt: string;
-  disabledBy: 'post-merge' | 'pre-merge';
-  runId: string;
+  workflow: string;
   reason: string;
+  runId: string;
 }

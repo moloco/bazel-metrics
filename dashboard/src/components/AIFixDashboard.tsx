@@ -1,6 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import type { AIFixMetrics, WorkflowMetrics } from '../types/aiFixMetrics';
+import {
+  PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid,
+} from 'recharts';
+import type { AIFixMetrics, WorkflowSummary } from '../types/aiFixMetrics';
 import { GaugeCircle } from './GaugeCircle';
 import { MetricCard } from './MetricCard';
 import { getDataUrl } from '../config';
@@ -16,7 +19,7 @@ const WORKFLOW_LABELS: Record<string, string> = {
   'pre-merge': 'Pre-Merge',
 };
 
-function WorkflowCard({ title, metrics }: { title: string; metrics: WorkflowMetrics }) {
+function WorkflowCard({ title, metrics }: { title: string; metrics: WorkflowSummary }) {
   const successRate = metrics.totalInvocations > 0
     ? (metrics.successfulFixes / metrics.totalInvocations) * 100
     : 0;
@@ -30,7 +33,6 @@ function WorkflowCard({ title, metrics }: { title: string; metrics: WorkflowMetr
   return (
     <div className="metric-card">
       <h3 className="text-lg font-semibold mb-4">{title}</h3>
-
       <div className="mb-4">
         <div className="flex justify-between text-sm mb-1">
           <span className="text-gray-400">Success Rate</span>
@@ -58,7 +60,6 @@ function WorkflowCard({ title, metrics }: { title: string; metrics: WorkflowMetr
           ))}
         </div>
       </div>
-
       <div className="space-y-2 text-sm border-t border-bb-accent/30 pt-4">
         <div className="flex justify-between">
           <span className="text-gray-400">Total Invocations</span>
@@ -75,10 +76,6 @@ function WorkflowCard({ title, metrics }: { title: string; metrics: WorkflowMetr
         <div className="flex justify-between">
           <span className="text-gray-400">Tests Disabled</span>
           <span className="text-yellow-400">{metrics.testsDisabled}</span>
-        </div>
-        <div className="flex justify-between">
-          <span className="text-gray-400">User-Applied Fixes</span>
-          <span className="text-blue-400">{metrics.userAppliedFixes}</span>
         </div>
       </div>
     </div>
@@ -110,15 +107,10 @@ export function AIFixDashboard() {
       });
   }, []);
 
-  const allRuns = useMemo(() => {
-    if (!metrics) return [];
-    return [...metrics.postMerge.runs, ...metrics.preMerge.runs]
-      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-  }, [metrics]);
-
   const filteredRuns = useMemo(() => {
-    return allRuns.filter(run => runFilter === 'all' || run.status === runFilter);
-  }, [allRuns, runFilter]);
+    if (!metrics) return [];
+    return metrics.recentRuns.filter(run => runFilter === 'all' || run.status === runFilter);
+  }, [metrics, runFilter]);
 
   const filteredTests = useMemo(() => {
     if (!metrics) return [];
@@ -150,21 +142,26 @@ export function AIFixDashboard() {
     );
   }
 
-  const totalInvocations = metrics.postMerge.totalInvocations + metrics.preMerge.totalInvocations;
-  const totalSuccess = metrics.postMerge.successfulFixes + metrics.preMerge.successfulFixes;
-  const totalDisabled = metrics.postMerge.testsDisabled + metrics.preMerge.testsDisabled;
-  const totalApplied = metrics.postMerge.userAppliedFixes + metrics.preMerge.userAppliedFixes;
-  const overallSuccessRate = totalInvocations > 0 ? (totalSuccess / totalInvocations) * 100 : 0;
-  const postMergeSuccessRate = metrics.postMerge.totalInvocations > 0
-    ? (metrics.postMerge.successfulFixes / metrics.postMerge.totalInvocations) * 100 : 0;
-  const preMergeSuccessRate = metrics.preMerge.totalInvocations > 0
-    ? (metrics.preMerge.successfulFixes / metrics.preMerge.totalInvocations) * 100 : 0;
+  const { summary } = metrics;
+  const overallSuccessRate = summary.totalInvocations > 0
+    ? (summary.successfulFixes / summary.totalInvocations) * 100 : 0;
+  const postMergeSuccessRate = summary.postMerge.totalInvocations > 0
+    ? (summary.postMerge.successfulFixes / summary.postMerge.totalInvocations) * 100 : 0;
+  const preMergeSuccessRate = summary.preMerge.totalInvocations > 0
+    ? (summary.preMerge.successfulFixes / summary.preMerge.totalInvocations) * 100 : 0;
+
+  const totalApplied = summary.autoAppliedFixes + summary.userAppliedFixes;
 
   const outcomeData = [
-    { name: 'Successful', value: totalSuccess, color: STATUS_COLORS.success },
-    { name: 'Failed', value: metrics.postMerge.failedFixes + metrics.preMerge.failedFixes, color: STATUS_COLORS.failure },
-    { name: 'Disabled Tests', value: totalDisabled, color: STATUS_COLORS.disabled },
+    { name: 'Successful', value: summary.successfulFixes, color: STATUS_COLORS.success },
+    { name: 'Failed', value: summary.failedFixes, color: STATUS_COLORS.failure },
+    { name: 'Disabled Tests', value: summary.testsDisabled, color: STATUS_COLORS.disabled },
   ];
+
+  const trendData = metrics.dailyTrend.map(d => ({
+    ...d,
+    date: d.date.slice(5),
+  }));
 
   const paginatedRuns = filteredRuns.slice(runPage * runsPerPage, (runPage + 1) * runsPerPage);
   const totalRunPages = Math.ceil(filteredRuns.length / runsPerPage);
@@ -183,19 +180,19 @@ export function AIFixDashboard() {
           <GaugeCircle
             percentage={overallSuccessRate}
             label="Overall Success"
-            sublabel={`${totalSuccess}/${totalInvocations} fixes`}
+            sublabel={`${summary.successfulFixes}/${summary.totalInvocations} fixes`}
             size={140}
           />
           <GaugeCircle
             percentage={postMergeSuccessRate}
             label="Post-Merge"
-            sublabel={`${metrics.postMerge.successfulFixes}/${metrics.postMerge.totalInvocations} fixes`}
+            sublabel={`${summary.postMerge.successfulFixes}/${summary.postMerge.totalInvocations} fixes`}
             size={140}
           />
           <GaugeCircle
             percentage={preMergeSuccessRate}
             label="Pre-Merge"
-            sublabel={`${metrics.preMerge.successfulFixes}/${metrics.preMerge.totalInvocations} fixes`}
+            sublabel={`${summary.preMerge.successfulFixes}/${summary.preMerge.totalInvocations} fixes`}
             size={140}
           />
         </div>
@@ -205,34 +202,55 @@ export function AIFixDashboard() {
       <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <MetricCard
           title="Total AI Invocations"
-          value={totalInvocations}
+          value={summary.totalInvocations}
           subtitle="across both workflows"
           color="blue"
         />
         <MetricCard
           title="Successful Fixes"
-          value={totalSuccess}
+          value={summary.successfulFixes}
           subtitle={`${overallSuccessRate.toFixed(1)}% success rate`}
           color="green"
         />
         <MetricCard
           title="Tests Disabled"
-          value={totalDisabled}
+          value={summary.testsDisabled}
           subtitle="could not be fixed by AI"
           color="red"
         />
         <MetricCard
-          title="User-Applied Fixes"
+          title="Fixes Applied"
           value={totalApplied}
-          subtitle="fixes merged by users"
+          subtitle={`${summary.autoAppliedFixes} auto + ${summary.userAppliedFixes} user`}
           color="green"
         />
       </section>
 
+      {/* 30-Day Trend */}
+      <section className="metric-card">
+        <h3 className="text-lg font-semibold mb-4">30-Day Trend</h3>
+        <ResponsiveContainer width="100%" height={250}>
+          <BarChart data={trendData} margin={{ left: 0, right: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+            <XAxis dataKey="date" stroke="#9ca3af" tick={{ fontSize: 11 }} interval={2} />
+            <YAxis stroke="#9ca3af" allowDecimals={false} />
+            <Tooltip
+              contentStyle={{ backgroundColor: '#1a1a2e', border: '1px solid #374151' }}
+              labelStyle={{ color: '#fff' }}
+              labelFormatter={(label) => `Date: ${label}`}
+            />
+            <Legend />
+            <Bar dataKey="successful" name="Successful" stackId="a" fill={STATUS_COLORS.success} />
+            <Bar dataKey="failed" name="Failed" stackId="a" fill={STATUS_COLORS.failure} />
+            <Bar dataKey="disabled" name="Disabled" stackId="a" fill={STATUS_COLORS.disabled} />
+          </BarChart>
+        </ResponsiveContainer>
+      </section>
+
       {/* Workflow Breakdown + Pie Chart */}
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <WorkflowCard title="Post-Merge Workflow" metrics={metrics.postMerge} />
-        <WorkflowCard title="Pre-Merge Workflow" metrics={metrics.preMerge} />
+        <WorkflowCard title="Post-Merge Workflow" metrics={summary.postMerge} />
+        <WorkflowCard title="Pre-Merge Workflow" metrics={summary.preMerge} />
         <div className="metric-card">
           <h3 className="text-lg font-semibold mb-4">Fix Outcomes</h3>
           <ResponsiveContainer width="100%" height={250}>
@@ -277,7 +295,6 @@ export function AIFixDashboard() {
             className="px-3 py-1.5 bg-bb-accent/50 border border-bb-accent rounded text-sm text-white placeholder-gray-400 w-full sm:w-64"
           />
         </div>
-
         {filteredTests.length === 0 ? (
           <p className="text-gray-500 text-center py-8">
             {metrics.disabledTests.length === 0 ? 'No tests have been disabled' : 'No matching tests found'}
@@ -302,11 +319,11 @@ export function AIFixDashboard() {
                     </td>
                     <td className="py-2 pr-4">
                       <span className={`px-2 py-0.5 rounded text-xs ${
-                        test.disabledBy === 'post-merge'
+                        test.workflow === 'post-merge'
                           ? 'bg-purple-900/50 text-purple-300'
                           : 'bg-blue-900/50 text-blue-300'
                       }`}>
-                        {WORKFLOW_LABELS[test.disabledBy]}
+                        {WORKFLOW_LABELS[test.workflow] || test.workflow}
                       </span>
                     </td>
                     <td className="py-2 text-gray-400 text-xs">{test.reason}</td>
@@ -318,7 +335,7 @@ export function AIFixDashboard() {
         )}
       </section>
 
-      {/* Recent AI Fix Runs */}
+      {/* Recent Runs */}
       <section className="metric-card">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
           <h3 className="text-lg font-semibold">Recent AI Fix Runs</h3>
@@ -333,11 +350,9 @@ export function AIFixDashboard() {
             <option value="disabled">Disabled Tests</option>
           </select>
         </div>
-
         <div className="text-sm text-gray-400 mb-2">
           Showing {paginatedRuns.length} of {filteredRuns.length} runs
         </div>
-
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -345,6 +360,7 @@ export function AIFixDashboard() {
                 <th className="pb-2 pr-4">Time</th>
                 <th className="pb-2 pr-4">Workflow</th>
                 <th className="pb-2 pr-4">Status</th>
+                <th className="pb-2 pr-4">Applied</th>
                 <th className="pb-2 pr-4">Targets</th>
                 <th className="pb-2 pr-4 text-center">Attempts</th>
                 <th className="pb-2">PR</th>
@@ -374,18 +390,22 @@ export function AIFixDashboard() {
                       {run.status === 'disabled' ? 'Test Disabled' : run.status.charAt(0).toUpperCase() + run.status.slice(1)}
                     </span>
                   </td>
+                  <td className="py-2 pr-4">
+                    {run.applied === 'auto-label' ? (
+                      <span className="px-2 py-0.5 rounded text-xs bg-green-900/50 text-green-300">Auto</span>
+                    ) : run.applied === 'fix-branch' ? (
+                      <span className="px-2 py-0.5 rounded text-xs bg-gray-700 text-gray-300">Pending</span>
+                    ) : (
+                      <span className="text-gray-600">-</span>
+                    )}
+                  </td>
                   <td className="py-2 pr-4 font-mono text-xs max-w-xs truncate" title={run.targets.join(', ')}>
                     {run.targets.join(', ')}
                   </td>
                   <td className="py-2 pr-4 text-center text-gray-400">{run.attempts}</td>
                   <td className="py-2">
                     {run.prUrl ? (
-                      <a
-                        href={run.prUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-400 hover:text-blue-300"
-                      >
+                      <a href={run.prUrl} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">
                         #{run.prNumber}
                       </a>
                     ) : (
@@ -397,7 +417,6 @@ export function AIFixDashboard() {
             </tbody>
           </table>
         </div>
-
         {totalRunPages > 1 && (
           <div className="flex justify-center gap-2 mt-4">
             <button
