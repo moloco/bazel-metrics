@@ -6,6 +6,7 @@ import { DirectoryBreakdown } from './components/DirectoryBreakdown';
 import { PackageExplorer } from './components/PackageExplorer';
 import { SpeedComparison } from './components/SpeedComparison';
 import { AIFixDashboard } from './components/AIFixDashboard';
+import { getDataUrl } from './config';
 
 type Page = 'metrics' | 'ai-fix';
 
@@ -26,7 +27,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    fetch('/metrics.json')
+    fetch(getDataUrl('metrics.json'))
       .then(res => {
         if (!res.ok) throw new Error('Failed to load metrics.json');
         return res.json();

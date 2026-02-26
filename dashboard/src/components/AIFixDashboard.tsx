@@ -3,6 +3,7 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recha
 import type { AIFixMetrics, WorkflowMetrics } from '../types/aiFixMetrics';
 import { GaugeCircle } from './GaugeCircle';
 import { MetricCard } from './MetricCard';
+import { getDataUrl } from '../config';
 
 const STATUS_COLORS: Record<string, string> = {
   success: '#22c55e',
@@ -94,7 +95,7 @@ export function AIFixDashboard() {
   const runsPerPage = 10;
 
   useEffect(() => {
-    fetch('/ai-fix-metrics.json')
+    fetch(getDataUrl('ai-fix-metrics.json'))
       .then(res => {
         if (!res.ok) throw new Error('Failed to load ai-fix-metrics.json');
         return res.json();
@@ -142,7 +143,7 @@ export function AIFixDashboard() {
           <h1 className="text-2xl text-red-400 mb-4">Error Loading AI Fix Metrics</h1>
           <p className="text-gray-400">{error || 'No AI fix metrics data available'}</p>
           <p className="text-gray-500 mt-4">
-            Place <code className="bg-bb-accent px-2 py-1 rounded">ai-fix-metrics.json</code> in the public directory
+            Ensure <code className="bg-bb-accent px-2 py-1 rounded">ai-fix-metrics.json</code> is uploaded to the GCS bucket
           </p>
         </div>
       </div>
