@@ -49,6 +49,6 @@ export interface DisabledTest {
   target: string;
   disabledAt: string;
   workflow: string;
-  reason: string;
+  reason: string | null;
   runId: string;
 }

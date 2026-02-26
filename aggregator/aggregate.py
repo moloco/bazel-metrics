@@ -19,8 +19,6 @@ import sys
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 
-from google.cloud import storage
-
 GCS_BUCKET = "bazel-metrics-data"
 EVENTS_PREFIX = "ai-fix-events/"
 OUTPUT_KEY = "ai-fix-metrics.json"
@@ -134,7 +132,7 @@ def aggregate(stored_data, all_events, trend_days, retention_days):
                     "target": target,
                     "disabledAt": event.get("timestamp", ""),
                     "workflow": workflow,
-                    "reason": event.get("reason", ""),
+                    "reason": event.get("reason") or "",
                     "runId": eid,
                 }
 
@@ -232,6 +230,8 @@ def cleanup_old_events(bucket, retention_days):
 
 
 def main():
+    from google.cloud import storage
+
     parser = argparse.ArgumentParser(description="Aggregate AI fix metrics from GCS")
     parser.add_argument("--bucket", default=GCS_BUCKET)
     parser.add_argument("--output-key", default=OUTPUT_KEY)

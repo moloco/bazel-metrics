@@ -114,9 +114,10 @@ export function AIFixDashboard() {
 
   const filteredTests = useMemo(() => {
     if (!metrics) return [];
+    const query = testSearch.toLowerCase();
     return metrics.disabledTests.filter(test =>
-      !testSearch || test.target.toLowerCase().includes(testSearch.toLowerCase()) ||
-      test.reason.toLowerCase().includes(testSearch.toLowerCase())
+      !query || test.target.toLowerCase().includes(query) ||
+      (test.reason ?? '').toLowerCase().includes(query)
     );
   }, [metrics, testSearch]);
 
@@ -326,7 +327,7 @@ export function AIFixDashboard() {
                         {WORKFLOW_LABELS[test.workflow] || test.workflow}
                       </span>
                     </td>
-                    <td className="py-2 text-gray-400 text-xs">{test.reason}</td>
+                    <td className="py-2 text-gray-400 text-xs">{test.reason || '-'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -378,7 +379,7 @@ export function AIFixDashboard() {
                         ? 'bg-purple-900/50 text-purple-300'
                         : 'bg-blue-900/50 text-blue-300'
                     }`}>
-                      {WORKFLOW_LABELS[run.workflow]}
+                      {WORKFLOW_LABELS[run.workflow] || run.workflow}
                     </span>
                   </td>
                   <td className="py-2 pr-4">
