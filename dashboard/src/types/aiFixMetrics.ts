@@ -2,6 +2,7 @@ export interface AIFixMetrics {
   timestamp: string;
   summary: AIFixSummary;
   dailyTrend: DailyTrendEntry[];
+  weeklyTrend: WeeklyTrendEntry[];
   disabledTests: DisabledTest[];
   recentRuns: AIFixRun[];
 }
@@ -26,6 +27,16 @@ export interface WorkflowSummary {
 
 export interface DailyTrendEntry {
   date: string;
+  invocations: number;
+  successful: number;
+  failed: number;
+  disabled: number;
+  applied: number;
+}
+
+export interface WeeklyTrendEntry {
+  week: string;
+  weekStart: string;
   invocations: number;
   successful: number;
   failed: number;

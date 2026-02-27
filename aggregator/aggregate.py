@@ -5,6 +5,7 @@ Reads individual event JSONs written by the AI fix workflows in marvel2,
 aggregates them into ai-fix-metrics.json with:
   - All-time summary counters
   - 30-day daily trend (preserved across event cleanup)
+  - 180-day weekly trend (preserved across event cleanup)
   - Accumulated disabled tests list
   - Recent runs (last 50)
 
@@ -23,6 +24,7 @@ GCS_BUCKET = "bazel-metrics-data"
 EVENTS_PREFIX = "ai-fix-events/"
 OUTPUT_KEY = "ai-fix-metrics.json"
 TREND_DAYS = 30
+TREND_WEEKS = 26
 EVENT_RETENTION_DAYS = 7
 RECENT_RUNS_LIMIT = 50
 
@@ -57,6 +59,11 @@ def parse_ts(ts_str):
         return None
 
 
+def iso_week_start(dt):
+    """Return the Monday (start) of the ISO week containing dt."""
+    return (dt - timedelta(days=dt.weekday())).strftime("%Y-%m-%d")
+
+
 def load_existing_metrics(bucket, output_key):
     blob = bucket.blob(output_key)
     if blob.exists():
@@ -81,7 +88,24 @@ def load_events(bucket):
     return events
 
 
-def aggregate(stored_data, all_events, trend_days, retention_days):
+def tally_event(counts, event):
+    """Increment trend counters for a single event."""
+    if event.get("type") == "user_applied":
+        counts["applied"] += 1
+        return
+    counts["invocations"] += 1
+    status = event.get("status", "failure")
+    if status == "success":
+        counts["successful"] += 1
+    elif status == "disabled":
+        counts["disabled"] += 1
+    else:
+        counts["failed"] += 1
+    if event.get("applied") == "auto-label":
+        counts["applied"] += 1
+
+
+def aggregate(stored_data, all_events, trend_days, trend_weeks, retention_days):
     now = datetime.now(timezone.utc)
     retention_cutoff_day = (now - timedelta(days=retention_days)).strftime("%Y-%m-%d")
 
@@ -89,17 +113,18 @@ def aggregate(stored_data, all_events, trend_days, retention_days):
         summary = stored_data.get("summary", empty_summary())
         disabled_tests = {t["target"]: t for t in stored_data.get("disabledTests", [])}
         processed_ids = set(stored_data.get("_processedIds", []))
-        stored_trend = {e["date"]: e for e in stored_data.get("dailyTrend", [])}
+        stored_daily = {e["date"]: e for e in stored_data.get("dailyTrend", [])}
+        stored_weekly = {e["weekStart"]: e for e in stored_data.get("weeklyTrend", [])}
     else:
         summary = empty_summary()
         disabled_tests = {}
         processed_ids = set()
-        stored_trend = {}
+        stored_daily = {}
+        stored_weekly = {}
 
     fix_events = [e for e in all_events if e.get("workflow") in ("post-merge", "pre-merge")]
     apply_events = [e for e in all_events if e.get("type") == "user_applied"]
 
-    # Process new fix events into summary
     for event in fix_events:
         eid = event.get("id", "")
         if not eid or eid in processed_ids:
@@ -136,7 +161,6 @@ def aggregate(stored_data, all_events, trend_days, retention_days):
                     "runId": eid,
                 }
 
-    # Process new apply events
     for event in apply_events:
         eid = event.get("id", "")
         if not eid or eid in processed_ids:
@@ -144,45 +168,46 @@ def aggregate(stored_data, all_events, trend_days, retention_days):
         processed_ids.add(eid)
         summary["userAppliedFixes"] += 1
 
-    # Build daily trend from raw events (last retention_days)
-    # Days outside the retention window are preserved from stored data
+    # --- Build trend data from raw events ---
     zeros = {"invocations": 0, "successful": 0, "failed": 0, "disabled": 0, "applied": 0}
     daily_counts = defaultdict(lambda: dict(zeros))
+    weekly_counts = defaultdict(lambda: dict(zeros))
 
-    for event in fix_events:
+    for event in fix_events + apply_events:
         ts = parse_ts(event.get("timestamp", ""))
         if not ts:
             continue
         day = ts.strftime("%Y-%m-%d")
-        daily_counts[day]["invocations"] += 1
-        status = event.get("status", "failure")
-        if status == "success":
-            daily_counts[day]["successful"] += 1
-        elif status == "disabled":
-            daily_counts[day]["disabled"] += 1
-        else:
-            daily_counts[day]["failed"] += 1
-        if event.get("applied") == "auto-label":
-            daily_counts[day]["applied"] += 1
+        week = iso_week_start(ts)
+        tally_event(daily_counts[day], event)
+        tally_event(weekly_counts[week], event)
 
-    for event in apply_events:
-        ts = parse_ts(event.get("timestamp", ""))
-        if not ts:
-            continue
-        day = ts.strftime("%Y-%m-%d")
-        daily_counts[day]["applied"] += 1
-
+    # Daily trend (last 30 days)
     daily_trend = []
     for i in range(trend_days):
         day = (now - timedelta(days=trend_days - 1 - i)).strftime("%Y-%m-%d")
         if day >= retention_cutoff_day:
             daily_trend.append({"date": day, **daily_counts.get(day, zeros)})
-        elif day in stored_trend:
-            daily_trend.append(stored_trend[day])
+        elif day in stored_daily:
+            daily_trend.append(stored_daily[day])
         else:
             daily_trend.append({"date": day, **zeros})
 
-    # Recent runs from raw events
+    # Weekly trend (last 26 weeks / 180 days)
+    retention_cutoff_week = iso_week_start(now - timedelta(days=retention_days))
+    weekly_trend = []
+    for i in range(trend_weeks):
+        week_dt = now - timedelta(weeks=trend_weeks - 1 - i)
+        week_start = iso_week_start(week_dt)
+        week_label = week_dt.strftime("%Y-W%V")
+        if week_start >= retention_cutoff_week and week_start in weekly_counts:
+            weekly_trend.append({"week": week_label, "weekStart": week_start, **weekly_counts[week_start]})
+        elif week_start in stored_weekly:
+            weekly_trend.append(stored_weekly[week_start])
+        else:
+            weekly_trend.append({"week": week_label, "weekStart": week_start, **zeros})
+
+    # Recent runs
     recent_runs = []
     for event in fix_events:
         recent_runs.append({
@@ -199,7 +224,6 @@ def aggregate(stored_data, all_events, trend_days, retention_days):
     recent_runs.sort(key=lambda r: r.get("timestamp", ""), reverse=True)
     recent_runs = recent_runs[:RECENT_RUNS_LIMIT]
 
-    # Prune processedIds to only IDs present in current events
     current_ids = {e.get("id") for e in all_events if e.get("id")}
     processed_ids = processed_ids & current_ids
 
@@ -207,6 +231,7 @@ def aggregate(stored_data, all_events, trend_days, retention_days):
         "timestamp": now.isoformat(),
         "summary": summary,
         "dailyTrend": daily_trend,
+        "weeklyTrend": weekly_trend,
         "disabledTests": list(disabled_tests.values()),
         "recentRuns": recent_runs,
         "_processedIds": sorted(processed_ids),
@@ -237,6 +262,7 @@ def main():
     parser.add_argument("--output-key", default=OUTPUT_KEY)
     parser.add_argument("--retention-days", type=int, default=EVENT_RETENTION_DAYS)
     parser.add_argument("--trend-days", type=int, default=TREND_DAYS)
+    parser.add_argument("--trend-weeks", type=int, default=TREND_WEEKS)
     parser.add_argument("--dry-run", action="store_true", help="Print output without uploading")
     args = parser.parse_args()
 
@@ -251,7 +277,7 @@ def main():
     print(f"Found {len(events)} raw events")
 
     print("Aggregating...")
-    result = aggregate(existing, events, args.trend_days, args.retention_days)
+    result = aggregate(existing, events, args.trend_days, args.trend_weeks, args.retention_days)
 
     s = result["summary"]
     print(f"  Total invocations: {s['totalInvocations']}")
@@ -262,6 +288,7 @@ def main():
     print(f"  User-applied: {s['userAppliedFixes']}")
     print(f"  Disabled tests tracked: {len(result['disabledTests'])}")
     print(f"  Recent runs: {len(result['recentRuns'])}")
+    print(f"  Weekly trend entries: {len(result['weeklyTrend'])}")
 
     if args.dry_run:
         public = {k: v for k, v in result.items() if not k.startswith("_")}

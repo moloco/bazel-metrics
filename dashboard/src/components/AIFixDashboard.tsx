@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import {
   PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend,
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
+  AreaChart, Area,
 } from 'recharts';
 import type { AIFixMetrics, WorkflowSummary } from '../types/aiFixMetrics';
 import { GaugeCircle } from './GaugeCircle';
@@ -121,6 +122,25 @@ export function AIFixDashboard() {
     );
   }, [metrics, testSearch]);
 
+  const weeklyAccumulated = useMemo(() => {
+    if (!metrics?.weeklyTrend) return [];
+    let cumInvocations = 0, cumSuccessful = 0, cumFailed = 0, cumDisabled = 0;
+    return metrics.weeklyTrend.map(w => {
+      cumInvocations += w.invocations;
+      cumSuccessful += w.successful;
+      cumFailed += w.failed;
+      cumDisabled += w.disabled;
+      return {
+        week: w.week.slice(5),
+        weekStart: w.weekStart,
+        invocations: cumInvocations,
+        successful: cumSuccessful,
+        failed: cumFailed,
+        disabled: cumDisabled,
+      };
+    });
+  }, [metrics]);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -227,9 +247,30 @@ export function AIFixDashboard() {
         />
       </section>
 
+      {/* 180-Day Accumulated Trend */}
+      <section className="metric-card">
+        <h3 className="text-lg font-semibold mb-4">180-Day Accumulated Trend (Weekly)</h3>
+        <ResponsiveContainer width="100%" height={300}>
+          <AreaChart data={weeklyAccumulated} margin={{ left: 0, right: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+            <XAxis dataKey="week" stroke="#9ca3af" tick={{ fontSize: 11 }} interval={3} />
+            <YAxis stroke="#9ca3af" allowDecimals={false} />
+            <Tooltip
+              contentStyle={{ backgroundColor: '#1a1a2e', border: '1px solid #374151' }}
+              labelStyle={{ color: '#fff' }}
+              labelFormatter={(label) => `Week: ${label}`}
+            />
+            <Legend />
+            <Area type="monotone" dataKey="successful" name="Successful" stackId="1" stroke={STATUS_COLORS.success} fill={STATUS_COLORS.success} fillOpacity={0.6} />
+            <Area type="monotone" dataKey="failed" name="Failed" stackId="1" stroke={STATUS_COLORS.failure} fill={STATUS_COLORS.failure} fillOpacity={0.6} />
+            <Area type="monotone" dataKey="disabled" name="Disabled" stackId="1" stroke={STATUS_COLORS.disabled} fill={STATUS_COLORS.disabled} fillOpacity={0.6} />
+          </AreaChart>
+        </ResponsiveContainer>
+      </section>
+
       {/* 30-Day Trend */}
       <section className="metric-card">
-        <h3 className="text-lg font-semibold mb-4">30-Day Trend</h3>
+        <h3 className="text-lg font-semibold mb-4">30-Day Trend (Daily)</h3>
         <ResponsiveContainer width="100%" height={250}>
           <BarChart data={trendData} margin={{ left: 0, right: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
